@@ -3,6 +3,7 @@
 import argparse
 import html
 import os
+from pathlib import Path
 
 from hackernews import get_top_stories
 
@@ -27,7 +28,7 @@ def main() -> None:
 
     try:
         from dotenv import load_dotenv
-        load_dotenv()
+        load_dotenv(Path(__file__).with_name(".env"))
     except ModuleNotFoundError:
         pass
     story_count = int(os.getenv("STORY_COUNT", "3"))
