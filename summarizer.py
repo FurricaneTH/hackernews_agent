@@ -25,6 +25,7 @@ def summarize_article(article_text: str) -> str:
     response = client.responses.create(
         model=os.getenv("OPENAI_MODEL", "gpt-5.6-luna"),
         input=PROMPT + article_text,
+        reasoning={"effort": os.getenv("OPENAI_REASONING_EFFORT", "minimal")},
         max_output_tokens=int(os.getenv("MAX_OUTPUT_TOKENS", "1200")),
     )
     return response.output_text.strip()
