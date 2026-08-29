@@ -33,8 +33,8 @@ def main() -> None:
         load_dotenv(Path(__file__).with_name(".env"))
     except ModuleNotFoundError:
         pass
-    scan_count = int(os.getenv("SCAN_COUNT", "10"))
-    max_summaries = int(os.getenv("MAX_SUMMARIES", "3"))
+    scan_count = int(os.getenv("SCAN_COUNT", "30"))
+    max_summaries = int(os.getenv("MAX_SUMMARIES", "5"))
     scanned_stories = get_top_stories(count=scan_count)
     stories = filter_technology_stories(scanned_stories, limit=max_summaries)
 
