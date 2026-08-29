@@ -26,3 +26,9 @@ Sadece Hacker News bağlantısını test etmek için:
 ```bash
 python main.py --preview
 ```
+
+Özetleri üretip e-posta göndermeden terminalde görmek için:
+
+```bash
+python main.py --no-email
+```
