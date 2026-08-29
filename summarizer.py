@@ -24,8 +24,8 @@ MAKALE METNİ:
 def summarize_article(article_text: str) -> str:
     client = OpenAI()
     response = client.responses.create(
-        model=os.getenv("OPENAI_MODEL", "gpt-5.6-terra"),
+        model=os.getenv("OPENAI_MODEL", "gpt-5.6-luna"),
         input=PROMPT + article_text,
+        max_output_tokens=int(os.getenv("MAX_OUTPUT_TOKENS", "2500")),
     )
     return response.output_text.strip()
-

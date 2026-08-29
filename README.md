@@ -6,7 +6,7 @@ Hacker News'in güncel üst sıralarındaki haberleri alıp Türkçe detaylı ö
 
 1. Hacker News API'den ilk haberleri alma (tamamlandı)
 2. Haber makalelerinin metnini çıkarma (tamamlandı)
-3. OpenAI API ile Türkçe özetleme (anahtar bekliyor)
+3. OpenAI API ile Türkçe özetleme (Luna modeli; kredi bekliyor)
 4. E-posta gönderme (SMTP ayarları bekliyor)
 5. Her gün 09:00 zamanlama (daha sonra)
 
