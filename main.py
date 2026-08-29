@@ -5,6 +5,7 @@ import html
 import os
 from pathlib import Path
 
+from filtering import filter_technology_stories
 from hackernews import get_top_stories
 
 
@@ -32,14 +33,17 @@ def main() -> None:
         load_dotenv(Path(__file__).with_name(".env"))
     except ModuleNotFoundError:
         pass
-    story_count = int(os.getenv("STORY_COUNT", "3"))
-    stories = get_top_stories(count=story_count)
+    scan_count = int(os.getenv("SCAN_COUNT", "10"))
+    max_summaries = int(os.getenv("MAX_SUMMARIES", "3"))
+    scanned_stories = get_top_stories(count=scan_count)
+    stories = filter_technology_stories(scanned_stories, limit=max_summaries)
 
     if not stories:
-        print("Haber bulunamadı.")
+        print(f"İlk {scan_count} haberde teknoloji veya yapay zekâ başlığı bulunamadı.")
         return
 
     if args.preview:
+        print(f"İlk {scan_count} haber tarandı; {len(stories)} haber seçildi.\n")
         for index, story in enumerate(stories, start=1):
             print(f"{index}. {story.get('title', 'Başlıksız haber')}")
             print(f"   URL: {story.get('url', 'Hacker News bağlantısı yok')}")
@@ -49,6 +53,7 @@ def main() -> None:
     from summarizer import summarize_article
     from email_sender import send_email
 
+    print(f"İlk {scan_count} haber tarandı; {len(stories)} teknoloji/AI haberi özetlenecek.")
     summaries = []
     for index, story in enumerate(stories, start=1):
         url = story.get("url")
