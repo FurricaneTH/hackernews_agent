@@ -128,6 +128,25 @@ This runs the complete current CLI flow and sends the digest using SMTP.
 python main.py
 ```
 
+### List the most recent API usage and charges
+
+Every summarization call appends its token usage and estimated cost to `usage_log.jsonl`. This command lists the latest records, newest first:
+
+```bash
+python main.py --usage
+python main.py --usage --usage-limit 25   # 0 lists every record
+```
+
+Estimated costs are only printed when the per-million-token prices are configured in `.env`:
+
+```dotenv
+OPENAI_INPUT_PRICE_PER_1M=1.25
+OPENAI_OUTPUT_PRICE_PER_1M=10
+USAGE_LOG_PATH=
+```
+
+A normal run also prints the total tokens and estimated cost of that run. The log file contains no credentials, but it is ignored by Git by default.
+
 ## Project structure
 
 | File | Purpose |
@@ -138,6 +157,7 @@ python main.py
 | `article_reader.py` | Downloads article pages and extracts readable text |
 | `summarizer.py` | Calls the OpenAI Responses API and creates Turkish summaries |
 | `email_sender.py` | Sends the digest through Gmail SMTP |
+| `usage_log.py` | Records token usage and estimated cost per API call and lists recent records |
 | `.env.example` | Safe configuration template without secrets |
 | `requirements.txt` | Python dependencies |
 
@@ -146,6 +166,8 @@ python main.py
 Hacker News API requests, local title filtering, article downloads, and Gmail SMTP delivery do not use OpenAI credits. OpenAI usage is generated only when the selected article text is sent to the summarization model.
 
 The number of stories scanned does not directly determine the OpenAI cost. For example, scanning 20 or 30 titles costs the same on the OpenAI side if both configurations summarize 5 articles. Increasing `MAX_SUMMARIES`, article length, output length, or run frequency increases usage.
+
+Actual usage is tracked locally: each call stores its input, output, and total tokens in `usage_log.jsonl`, and `python main.py --usage` lists the most recent charges with their estimated cost.
 
 The model is configurable through `OPENAI_MODEL`. The current default is `gpt-5.6-luna`, selected for the quality and cost balance required by this workflow.
 
@@ -165,6 +187,7 @@ The model is configurable through `OPENAI_MODEL`. The current default is `gpt-5.
 - Turkish article summarization: complete
 - Terminal preview and no-email modes: complete
 - Gmail SMTP delivery: implemented and tested
+- API usage and cost logging: complete
 - Site/database integration: handled by the separate website project
 - Daily 09:00 scheduling: planned for a future deployment step
 

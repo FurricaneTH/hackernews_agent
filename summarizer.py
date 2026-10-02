@@ -4,6 +4,8 @@ import os
 
 from openai import OpenAI
 
+from usage_log import record_usage
+
 
 PROMPT = """Aşağıdaki Hacker News makalesini Türkçe, kompakt ama anlamlı biçimde özetle.
 
@@ -20,12 +22,16 @@ MAKALE METNİ:
 """
 
 
-def summarize_article(article_text: str) -> str:
+def summarize_article(article_text: str, label: str = "") -> str:
     client = OpenAI()
+    model = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
     response = client.responses.create(
-        model=os.getenv("OPENAI_MODEL", "gpt-5.6-luna"),
+        model=model,
         input=PROMPT + article_text,
         reasoning={"effort": os.getenv("OPENAI_REASONING_EFFORT", "minimal")},
         max_output_tokens=int(os.getenv("MAX_OUTPUT_TOKENS", "1200")),
     )
+    usage = getattr(response, "usage", None)
+    if usage is not None:
+        record_usage(model, usage, label=label)
     return response.output_text.strip()

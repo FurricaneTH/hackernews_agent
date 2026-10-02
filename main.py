@@ -26,6 +26,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--preview", action="store_true", help="E-posta göndermeden haberleri göster")
     parser.add_argument("--no-email", action="store_true", help="Özetleri üretir ama e-posta göndermez")
+    parser.add_argument("--usage", action="store_true", help="En son API kullanım ve ücret kayıtlarını listeler")
+    parser.add_argument("--usage-limit", type=int, default=10, help="Listelenecek kayıt sayısı (0 = tümü)")
     args = parser.parse_args()
 
     try:
@@ -33,6 +35,12 @@ def main() -> None:
         load_dotenv(Path(__file__).with_name(".env"))
     except ModuleNotFoundError:
         pass
+
+    if args.usage:
+        from usage_log import format_records, read_recent
+        print(format_records(read_recent(limit=args.usage_limit)))
+        return
+
     scan_count = int(os.getenv("SCAN_COUNT", "30"))
     max_summaries = int(os.getenv("MAX_SUMMARIES", "5"))
     scanned_stories = get_top_stories(count=scan_count)
@@ -52,9 +60,11 @@ def main() -> None:
     from article_reader import read_article
     from summarizer import summarize_article
     from email_sender import send_email
+    from usage_log import read_recent, summarize_records
 
     print(f"İlk {scan_count} haber tarandı; {len(stories)} teknoloji/AI haberi özetlenecek.")
     summaries = []
+    summarized_count = 0
     for index, story in enumerate(stories, start=1):
         url = story.get("url")
         if not url:
@@ -62,11 +72,15 @@ def main() -> None:
             continue
         try:
             article_text = read_article(url)
-            summaries.append(summarize_article(article_text))
+            summaries.append(summarize_article(article_text, label=story.get("title", "")))
+            summarized_count += 1
             print(f"{index}. haber özetlendi.")
         except Exception as exc:
             summaries.append(f"Makale okunamadı veya özetlenemedi: {exc}")
             print(f"{index}. haber için hata: {exc}")
+
+    if summarized_count:
+        print(f"\nBu çalıştırmanın API kullanımı: {summarize_records(read_recent(limit=summarized_count))}")
 
     if args.no_email:
         for index, (story, summary) in enumerate(zip(stories, summaries), start=1):
